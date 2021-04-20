@@ -45,7 +45,7 @@ network-model:
 
 # custom object name with no particular semantics
 # it is aimed at containing reactions to be referenced elsewhere
-reactions:
+_reactions:
   # re-usable set of reactions making a node perform a brownian movement
   # i.e. the node moves in a random direction of a given amount, repeatedly, once every while
   move: &move
@@ -87,40 +87,39 @@ reactions:
     - program: send
 
 # declarative section aimed at displacing nodes in the environment
-displacements:
-  - # disposes as many nodes as possible in the 10x10 squared area centered in (0, 0), in a grid-like fashion
-    in:
-      # nodes are disposed in the 10x10 grid by letting a 0.25 distance separate them over both the vertical
-      # and horizontal axes. notice that each node disposition is perturbed by a random vector uniformly drawn
-      # from the 0.2-edged square centered in (0, 0)
-      type: Grid
-      parameters: [-5, -5, 5, 5, 0.25, 0.25, 0.1, 0.1]
-    contents:
-      - # puts a boolean molecule named `source` into the subset of nodes laying in the
-        # bottom-left corner of the grid above. this identifies the nodes representing the source
-        # of the path to be revealed by the aggregate computation
-        in:
-          type: Rectangle
-          parameters: [-6, -6, 2, 2]
-        molecule: source
-        # the concentration (aka value) of the `source` molecule is `true`
-        concentration: true
-      - # puts a boolean molecule named `destination` into the subset of nodes laying in the
-        # top-right corner of the grid above. this identifies the nodes representing the destination
-        # of the path to be revealed by the aggregate computation
-        in:
-          type: Rectangle
-          parameters: [4, 4, 6, 6]
-        molecule: destination
-        # the concentration (aka value) of the `destination` molecule is `true`
-        concentration: true
-      - # puts a numeric molecule named `width` into all nodes laying on the grid above.
-        # this is aimed at "transmitting" the `channelWidth` variable above to all devices
-        molecule: width
-        concentration: *channelWidth
-    programs:
-      - *channel # add the channel reaction above to each node
-#      - *move # add the channel reaction aboce to each node
+deployments:
+  # disposes as many nodes as possible in the 10x10 squared area centered in (0, 0), in a grid-like fashion
+  # nodes are disposed in the 10x10 grid by letting a 0.25 distance separate them over both the vertical
+  # and horizontal axes. notice that each node disposition is perturbed by a random vector uniformly drawn
+  # from the 0.2-edged square centered in (0, 0)
+  type: Grid
+  parameters: [-5, -5, 5, 5, 0.25, 0.25, 0.1, 0.1]
+  contents:
+    - # puts a boolean molecule named `source` into the subset of nodes laying in the
+      # bottom-left corner of the grid above. this identifies the nodes representing the source
+      # of the path to be revealed by the aggregate computation
+      in:
+        type: Rectangle
+        parameters: [-6, -6, 2, 2]
+      molecule: source
+      # the concentration (aka value) of the `source` molecule is `true`
+      concentration: true
+    - # puts a boolean molecule named `destination` into the subset of nodes laying in the
+      # top-right corner of the grid above. this identifies the nodes representing the destination
+      # of the path to be revealed by the aggregate computation
+      in:
+        type: Rectangle
+        parameters: [4, 4, 6, 6]
+      molecule: destination
+      # the concentration (aka value) of the `destination` molecule is `true`
+      concentration: true
+    - # puts a numeric molecule named `width` into all nodes laying on the grid above.
+      # this is aimed at "transmitting" the `channelWidth` variable above to all devices
+      molecule: width
+      concentration: *channelWidth
+  programs:
+    - *channel # add the channel reaction to each node
+#   - *move
 
 # data to be logged out for each simulated event
 export:
