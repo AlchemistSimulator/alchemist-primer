@@ -126,7 +126,7 @@ export:
   - # the instant in simulated time
     time
   - # the total amount of nodes laying in the environment at that time
-    number-of-nodes
+    type: NumberOfNodes
   - # the total amount of nodes containing the `source` molecule,
     # attained by summing up all the concentrations of all the nodes containing this molecule
     # (true = 1, false = 0)
