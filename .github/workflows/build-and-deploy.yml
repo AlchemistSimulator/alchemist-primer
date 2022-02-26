@@ -30,7 +30,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2.4.0
       - name: Check the simulations on CI
-        uses: DanySK/build-check-deploy-gradle-action@1.2.1
+        uses: DanySK/build-check-deploy-gradle-action@1.2.3
         with:
           check-command: ./gradlew runAll
           should-run-codecov: false
