@@ -123,23 +123,30 @@ deployments:
 
 # data to be logged out for each simulated event
 export:
-  - # the instant in simulated time
-    time
-  - # the total amount of nodes laying in the environment at that time
-    type: NumberOfNodes
-  - # the total amount of nodes containing the `source` molecule,
-    # attained by summing up all the concentrations of all the nodes containing this molecule
-    # (true = 1, false = 0)
-    molecule: source
-    # nodes which do not contain the molecule are filtered out in summation
-    value-filter: onlyfinite
-    aggregators: [sum]
-  - # the total amount of nodes containing the `destination` molecule,
-    molecule: destination
-    value-filter: onlyfinite
-    aggregators: [sum]
-    # the total amount of nodes laying on the path among the source area and the destination area,
-    # attained by summing up the result of the `example:channel` aggregate program above
-    # (which is boolean, thus true = 1, false = 0)
-  - molecule: example:channel
-    aggregators: [sum]
+  - type: CSVExporter
+    parameters:
+      fileNameRoot: "channel"
+      exportPath: "data"
+      fileExtension: "txt"
+      interval: 3.0
+    data:
+      - # the instant in simulated time
+        time
+      - # the total amount of nodes laying in the environment at that time
+        type: NumberOfNodes
+      - # the total amount of nodes containing the `source` molecule,
+        # attained by summing up all the concentrations of all the nodes containing this molecule
+        # (true = 1, false = 0)
+        molecule: source
+        # nodes which do not contain the molecule are filtered out in summation
+        value-filter: onlyfinite
+        aggregators: [sum]
+      - # the total amount of nodes containing the `destination` molecule,
+        molecule: destination
+        value-filter: onlyfinite
+        aggregators: [sum]
+        # the total amount of nodes laying on the path among the source area and the destination area,
+        # attained by summing up the result of the `example:channel` aggregate program above
+        # (which is boolean, thus true = 1, false = 0)
+      - molecule: example:channel
+        aggregators: [sum]
