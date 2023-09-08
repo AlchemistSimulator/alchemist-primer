@@ -45,11 +45,11 @@ val runAll by tasks.register<DefaultTask>("runAll") {
  * Scan the folder with the simulation files, and create a task for each one of them.
  */
 File(rootProject.rootDir.path + "/src/main/yaml").listFiles()
-    .filter { it.extension == "yml" } // pick all yml files in src/main/yaml
-    .sortedBy { it.nameWithoutExtension } // sort them, we like reproducibility
-    .forEach {
+    ?.filter { it.extension == "yml" } // pick all yml files in src/main/yaml
+    ?.sortedBy { it.nameWithoutExtension } // sort them, we like reproducibility
+    ?.forEach {
         // one simulation file -> one gradle task
-        val task by tasks.register<JavaExec>("run${it.nameWithoutExtension.capitalize()}") {
+        val task by tasks.register<JavaExec>("run${it.nameWithoutExtension.uppercase()}") {
             group = alchemistGroup // This is for better organization when running ./gradlew tasks
             description = "Launches simulation ${it.nameWithoutExtension}" // Just documentation
             mainClass.set("it.unibo.alchemist.Alchemist") // The class to launch
@@ -58,7 +58,7 @@ File(rootProject.rootDir.path + "/src/main/yaml").listFiles()
             val exportsDir = File("${projectDir.path}/build/exports/${it.nameWithoutExtension}")
             doFirst {
                 // this is not executed upfront, but only when the task is actually launched
-                // If the export folder doesn not exist, create it and its parents if needed
+                // If the export folder does not exist, create it and its parents if needed
                 if (!exportsDir.exists()) {
                     exportsDir.mkdirs()
                 }
@@ -67,18 +67,42 @@ File(rootProject.rootDir.path + "/src/main/yaml").listFiles()
             javaLauncher.set(
                 javaToolchains.launcherFor {
                     languageVersion.set(JavaLanguageVersion.of(multiJvm.latestJava))
-                }
+                },
             )
             // These are the program arguments
-            args("-y", it.absolutePath, "-e", "$exportsDir/${it.nameWithoutExtension}-${System.currentTimeMillis()}")
+            args("run", it.absolutePath)
             if (System.getenv("CI") == "true" || batch == "true") {
                 // If it is running in a Continuous Integration environment, use the "headless" mode of the simulator
                 // Namely, force the simulator not to use graphical output.
-                args("-hl", "-t", maxTime)
+                args(
+                    "--override'",
+                    """
+                    {
+                      "terminate": [
+                        {
+                          "type": "AfterTime",
+                          "parameters": $maxTime
+                        }
+                      ]
+                    }
+                    """.trimIndent(),
+                )
             } else {
                 // A graphics environment should be available, so load the effects for the UI from the "effects" folder
                 // Effects are expected to be named after the simulation file
-                args("-g", "effects/${it.nameWithoutExtension}.json")
+                args(
+                    "--override",
+                    """
+                    {
+                      "launcher": {
+                        "type": "SingleRunSwingUI",
+                        "parameters": {
+                          "graphics": "effects/${it.nameWithoutExtension}.json"
+                        }
+                      }
+                    }
+                """,
+                )
             }
             // This tells gradle that this task may modify the content of the export directory
             outputs.dir(exportsDir)
