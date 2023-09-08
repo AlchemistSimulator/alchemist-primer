@@ -70,38 +70,27 @@ File(rootProject.rootDir.path + "/src/main/yaml").listFiles()
                 },
             )
             // These are the program arguments
-            args("run", it.absolutePath)
+            args("run", it.absolutePath, "--override")
             if (System.getenv("CI") == "true" || batch == "true") {
                 // If it is running in a Continuous Integration environment, use the "headless" mode of the simulator
                 // Namely, force the simulator not to use graphical output.
                 args(
-                    "--override'",
                     """
-                    {
-                      "terminate": [
-                        {
-                          "type": "AfterTime",
-                          "parameters": $maxTime
-                        }
-                      ]
-                    }
+                        terminate:
+                        - type: AfterTime
+                          parameters: $maxTime
                     """.trimIndent(),
                 )
             } else {
                 // A graphics environment should be available, so load the effects for the UI from the "effects" folder
                 // Effects are expected to be named after the simulation file
                 args(
-                    "--override",
                     """
-                    {
-                      "launcher": {
-                        "type": "SingleRunSwingUI",
-                        "parameters": {
-                          "graphics": "effects/${it.nameWithoutExtension}.json"
-                        }
-                      }
-                    }
-                """,
+                        launcher:
+                          type: SingleRunSwingUI
+                          parameters:
+                            graphics: effects/${it.nameWithoutExtension}.json
+                    """,
                 )
             }
             // This tells gradle that this task may modify the content of the export directory
