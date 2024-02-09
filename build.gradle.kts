@@ -1,3 +1,5 @@
+import org.gradle.configurationcache.extensions.capitalized
+
 /*
  * DEFAULT GRADLE BUILD FOR ALCHEMIST SIMULATOR
  */
@@ -49,7 +51,7 @@ File(rootProject.rootDir.path + "/src/main/yaml").listFiles()
     ?.sortedBy { it.nameWithoutExtension } // sort them, we like reproducibility
     ?.forEach {
         // one simulation file -> one gradle task
-        val task by tasks.register<JavaExec>("run${it.nameWithoutExtension.uppercase()}") {
+        val task by tasks.register<JavaExec>("run${it.nameWithoutExtension.capitalized()}") {
             group = alchemistGroup // This is for better organization when running ./gradlew tasks
             description = "Launches simulation ${it.nameWithoutExtension}" // Just documentation
             mainClass.set("it.unibo.alchemist.Alchemist") // The class to launch
@@ -77,8 +79,8 @@ File(rootProject.rootDir.path + "/src/main/yaml").listFiles()
                 // Effects are expected to be named after the simulation file
                 args(
                     """
-                        launcher:
-                          type: SingleRunSwingUI
+                        monitors:
+                          type: SwingGUI
                           parameters:
                             graphics: effects/${it.nameWithoutExtension}.json
                     """,
