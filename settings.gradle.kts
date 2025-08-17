@@ -1,14 +1,15 @@
 plugins {
-    id("com.gradle.enterprise") version "3.19.2"
+    id("com.gradle.develocity") version "4.1"
     id("org.gradle.toolchains.foojay-resolver-convention") version "1.0.0"
 }
 
 rootProject.name = "alchemist-primer"
 
-gradleEnterprise {
+develocity {
     buildScan {
-        termsOfServiceUrl = "https://gradle.com/terms-of-service"
-        termsOfServiceAgree = "yes"
-        publishOnFailure()
+        termsOfUseUrl = "https://gradle.com/terms-of-service"
+        termsOfUseAgree = "yes"
+        uploadInBackground = !System.getenv("CI").toBoolean()
+        publishing.onlyIf { it.buildResult.failures.isNotEmpty() }
     }
 }
