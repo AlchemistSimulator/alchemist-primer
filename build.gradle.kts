@@ -1,9 +1,3 @@
-import org.gradle.configurationcache.extensions.capitalized
-
-/*
- * DEFAULT GRADLE BUILD FOR ALCHEMIST SIMULATOR
- */
-
 plugins {
     application
     alias(libs.plugins.multiJvmTesting) // Pre-configures the Java toolchains
@@ -49,11 +43,12 @@ val runAll by tasks.register<DefaultTask>("runAll") {
 File(rootProject.rootDir.path + "/src/main/yaml").listFiles()
     ?.filter { it.extension == "yml" } // pick all yml files in src/main/yaml
     ?.sortedBy { it.nameWithoutExtension } // sort them, we like reproducibility
-    ?.forEach {
+    ?.forEach { simulationFile ->
         // one simulation file -> one gradle task
-        val task by tasks.register<JavaExec>("run${it.nameWithoutExtension.capitalized()}") {
+        val simulationName = simulationFile.nameWithoutExtension
+        val task by tasks.register<JavaExec>("run${simulationName.replaceFirstChar { it.uppercase() }}}") {
             group = alchemistGroup // This is for better organization when running ./gradlew tasks
-            description = "Launches simulation ${it.nameWithoutExtension}" // Just documentation
+            description = "Launches simulation $simulationName" // Just documentation
             mainClass.set("it.unibo.alchemist.Alchemist") // The class to launch
             classpath = sourceSets["main"].runtimeClasspath // The classpath to use
             // Uses the latest version of java
@@ -63,7 +58,7 @@ File(rootProject.rootDir.path + "/src/main/yaml").listFiles()
                 },
             )
             // These are the program arguments
-            args("run", it.absolutePath, "--override")
+            args("run", simulationFile.absolutePath, "--override")
             if (System.getenv("CI") == "true" || batch == "true") {
                 // If it is running in a Continuous Integration environment, use the "headless" mode of the simulator
                 // Namely, force the simulator not to use graphical output.
@@ -82,7 +77,7 @@ File(rootProject.rootDir.path + "/src/main/yaml").listFiles()
                         monitors:
                           type: SwingGUI
                           parameters:
-                            graphics: effects/${it.nameWithoutExtension}.json
+                            graphics: effects/$simulationName.json
                     """,
                 )
             }
